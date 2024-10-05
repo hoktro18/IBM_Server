@@ -1,19 +1,72 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
+/* eslint-disable max-len */
+// Set up firebase admin
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+const serviceAccount = require("./serviceAccountKey.json");
 
-const {onRequest} = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+// Import the express library
+const express = require("express");
+const cors = require("cors");
+const UserAccount = require("./models/userAccount");
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+// Main App
+const app = express();
+app.use(cors({origin: true}));
+
+// Routes
+app.get("/", (req, res) => {
+  return res.status(200).send("Hi there!");
+});
+
+// Create -> post()
+app.post("/user/create", async (req, res) => {
+  (async () => {
+    try {
+      const newUser = await UserAccount.create(req.body);
+      return res.status(200).send({
+        success: "Success",
+        message: "User created successfully",
+        userId: newUser.UserId,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({success: "Failed", message: error});
+    }
+  })();
+});
+
+// Read -> get()
+// Fetch - Single Dât from Firestore Database using specific ID
+app.get("/user/get/:userId", async (req, res) => {
+  (async () => {
+    try {
+      const userAccount = await UserAccount.getById(req.params.userId);
+      return res.status(200).send({status: "Success", data: userAccount});
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({success: "Failed", message: error});
+    }
+  })();
+});
+
+// Update -> put()
+
+// Delete -> delete()
+app.delete("/user/delete/:userId", async (req, res) => {
+  (async () => {
+    try {
+      await UserAccount.delete(req.params.userId);
+      return res.status(200).send({success: "Success", message: "User deleted successfully"});
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({success: "Failed", message: error});
+    }
+  })();
+});
+
+// Export the API to Firebase Cloud Functions
+exports.app = functions.https.onRequest(app);
