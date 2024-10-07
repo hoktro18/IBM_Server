@@ -54,6 +54,17 @@ app.get("/user/get/:userId", async (req, res) => {
 });
 
 // Update -> put()
+app.put("/user/update/:userId", async (req, res) => {
+  (async () => {
+    try {
+      await UserAccount.update(req.params.userId, req.body);
+      return res.status(200).send({success: "Success", message: "User updated successfully"});
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({success: "Failed", message: error});
+    }
+  })();
+});
 
 // Delete -> delete()
 app.delete("/user/delete/:userId", async (req, res) => {

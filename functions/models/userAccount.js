@@ -10,6 +10,8 @@ const {v4: uuidv4} = require("uuid");
  * @property {number} longitude - The longitude of the GPS location.
  */
 
+const allowedAttributes = ["UserName", "UserEmail", "UserContactNumber", "UserGPSLocation", "UserGPSLastUpdated"];
+
 /**
  * Class representing a User.
  */
@@ -24,11 +26,21 @@ class UserAccount {
    */
   constructor(name, email, phone, gpsLocation, gpsLastUpdated) {
     this.UserId = uuidv4();
-    this.UserName = name;
-    this.UserEmail = email;
-    this.UserContactNumber = phone;
-    this.UserGPSLocation = gpsLocation;
-    this.UserGPSLastUpdated = gpsLastUpdated;
+    this.UserName = name || null;
+    this.UserEmail = email || null;
+    this.UserContactNumber = phone || null;
+    this.UserGPSLocation = gpsLocation || null;
+    this.UserGPSLastUpdated = gpsLastUpdated || null;
+  }
+
+  // filter out any attributes that are not allowed
+  static validateData(data) {
+    return Object.keys(data)
+        .filter((key) => allowedAttributes.includes(key))
+        .reduce((obj, key) => {
+          obj[key] = data[key];
+          return obj;
+        }, {});
   }
 
   /**
@@ -38,6 +50,7 @@ class UserAccount {
    */
   static async create(data) {
     const user = new UserAccount(data.UserName, data.UserEmail, data.UserContactNumber, data.UserGPSLocation, data.UserGPSLastUpdated);
+    console.log(user);
     await db.collection("UserAccount").doc(user.UserId).set({
       UserId: user.UserId,
       UserName: user.UserName,
@@ -70,9 +83,19 @@ class UserAccount {
    * @return {Promise<Object>} The updated user data.
    */
   static async update(userId, data) {
+    // get the user document
     const userRef = db.collection("UserAccount").doc(userId);
-    await userRef.update(data);
+    if (!(await userRef.get()).exists) {
+      throw new Error("User not found");
+    }
+
+    // filter out any attributes that are not allowed
+    const validatedData = this.validateData(data);
+    await userRef.update(validatedData);
+
+    // get the updated document
     const updatedDoc = await userRef.get();
+
     return updatedDoc.data();
   }
 
