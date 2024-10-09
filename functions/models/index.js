@@ -3,5 +3,6 @@ const HealthData = require("./model_class/healthData");
 
 module.exports = {
   UserAccount,
+  HealthData,
 };
 
