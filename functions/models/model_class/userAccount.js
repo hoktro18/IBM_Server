@@ -2,9 +2,15 @@
 const admin = require("firebase-admin");
 const db = admin.firestore();
 const {v4: uuidv4} = require("uuid");
-const GPSLocation = require("./model_class/location");
+require("./location");
 
-const allowedAttributes = ["UserName", "UserEmail", "UserContactNumber", "UserGPSLocation", "UserGPSLastUpdated"];
+const allowedAttributes = [
+  "UserName",
+  "UserEmail",
+  "UserContactNumber",
+  "UserGPSLocation",
+  "UserGPSLastUpdated",
+];
 
 /**
  * Class representing a User.
@@ -27,7 +33,32 @@ class UserAccount {
     this.UserGPSLastUpdated = gpsLastUpdated || null;
   }
 
-  // filter out any attributes that are not allowed
+  /**
+   * @param {Object} data
+   * @returns {UserAccount}
+   */
+  static fromData(data) {
+    return new UserAccount(data.UserName, data.UserEmail, data.UserContactNumber, data.UserGPSLocation, data.UserGPSLastUpdated);
+  }
+
+  /**
+   * Create map of field
+   * @returns
+   */
+  toMap() {
+    return {
+      UserId: this.UserId,
+      UserName: this.UserName,
+      UserEmail: this.UserEmail,
+      UserContactNumber: this.UserContactNumber,
+      UserGPSLocation: this.UserGPSLocation,
+      UserGPSLastUpdated: this.UserGPSLastUpdated,
+    };
+  }
+
+  /**
+   * Filter out any attributes that are not allowed
+   */
   static validateData(data) {
     return Object.keys(data)
         .filter((key) => allowedAttributes.includes(key))
@@ -43,16 +74,9 @@ class UserAccount {
    * @return {Promise<UserAccount>} The created user account.
    */
   static async create(data) {
-    const user = new UserAccount(data.UserName, data.UserEmail, data.UserContactNumber, data.UserGPSLocation, data.UserGPSLastUpdated);
+    const user = UserAccount.fromData(data);
     console.log(user);
-    await db.collection("UserAccount").doc(user.UserId).set({
-      UserId: user.UserId,
-      UserName: user.UserName,
-      UserEmail: user.UserEmail,
-      UserContactNumber: user.UserContactNumber,
-      UserGPSLocation: user.UserGPSLocation,
-      UserGPSLastUpdated: user.UserGPSLastUpdated,
-    });
+    await db.collection("UserAccount").doc(user.UserId).set(user.toMap());
     return user;
   }
 
@@ -77,7 +101,6 @@ class UserAccount {
    * @return {Promise<Object>} The updated user data.
    */
   static async update(userId, data) {
-    console.log(data);
     // get the user document
     const userRef = db.collection("UserAccount").doc(userId);
     if (!(await userRef.get()).exists) {
@@ -86,7 +109,6 @@ class UserAccount {
 
     // filter out any attributes that are not allowed
     const validatedData = this.validateData(data);
-    console.log(validatedData);
     await userRef.update(validatedData);
 
     // get the updated document

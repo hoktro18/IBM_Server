@@ -1,4 +1,6 @@
-/* eslint-disable max-len */
+// Fixed require statements
+require("module-alias/register");
+
 // Set up firebase admin
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
@@ -11,73 +13,21 @@ admin.initializeApp({
 // Import the express library
 const express = require("express");
 const cors = require("cors");
-const UserAccount = require("./models/userAccount");
+
+// Route imports
+const {userRoutes} = require("@routes");
 
 // Main App
 const app = express();
 app.use(cors({origin: true}));
 
-// Routes
+// Base Route
 app.get("/", (req, res) => {
   return res.status(200).send("Hi there!");
 });
 
-// Create -> post()
-app.post("/user/create", async (req, res) => {
-  (async () => {
-    try {
-      const newUser = await UserAccount.create(req.body);
-      return res.status(200).send({
-        success: "Success",
-        message: "User created successfully",
-        userId: newUser.UserId,
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send({success: "Failed", message: error});
-    }
-  })();
-});
-
-// Read -> get()
-// Fetch - Single Dât from Firestore Database using specific ID
-app.get("/user/get/:userId", async (req, res) => {
-  (async () => {
-    try {
-      const userAccount = await UserAccount.getById(req.params.userId);
-      return res.status(200).send({status: "Success", data: userAccount});
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send({success: "Failed", message: error});
-    }
-  })();
-});
-
-// Update -> put()
-app.put("/user/update/:userId", async (req, res) => {
-  (async () => {
-    try {
-      await UserAccount.update(req.params.userId, req.body);
-      return res.status(200).send({success: "Success", message: "User updated successfully"});
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send({success: "Failed", message: error});
-    }
-  })();
-});
-
-// Delete -> delete()
-app.delete("/user/delete/:userId", async (req, res) => {
-  (async () => {
-    try {
-      await UserAccount.delete(req.params.userId);
-      return res.status(200).send({success: "Success", message: "User deleted successfully"});
-    } catch (error) {
-      console.log(error);
-      return res.status(500).send({success: "Failed", message: error});
-    }
-  })();
-});
+// User Routes
+app.use("/user", userRoutes);
 
 // Export the API to Firebase Cloud Functions
 exports.app = functions.https.onRequest(app);
