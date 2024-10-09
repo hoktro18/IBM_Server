@@ -1,5 +1,5 @@
-const UserAccount = require("./model_class/userAccount");
-const HealthData = require("./model_class/healthData");
+const UserAccount = require("./class/userAccount");
+const HealthData = require("./class/healthData");
 
 module.exports = {
   UserAccount,
