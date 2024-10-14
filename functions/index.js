@@ -15,7 +15,7 @@ const express = require("express");
 const cors = require("cors");
 
 // Route imports
-const {userRoutes} = require("@routes");
+const {userRoutes,stormRoutes} = require("@routes");
 
 // Main App
 const app = express();
@@ -28,6 +28,7 @@ app.get("/", (req, res) => {
 
 // User Routes
 app.use("/user", userRoutes);
+app.use('/weather', stormRoutes);
 
 // Export the API to Firebase Cloud Functions
 exports.app = functions.https.onRequest(app);
