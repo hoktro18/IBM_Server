@@ -43,6 +43,19 @@ router.get("/get/:userId", async (req, res) => {
   })();
 });
 
+// Get all users
+router.get("/getAll", async (req, res) => {
+  (async () => {
+    try {
+      const users = await UserAccount.getAll();
+      return res.status(200).send({status: "Success", data: users});
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({success: "Failed", message: error});
+    }
+  })();
+});
+
 /*
 *****************************
     UPDATE FUNCTION
@@ -54,6 +67,19 @@ router.put("/update/:userId", async (req, res) => {
     try {
       await UserAccount.update(req.params.userId, req.body);
       return res.status(200).send({success: "Success", message: "User updated successfully"});
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({success: "Failed", message: error});
+    }
+  })();
+});
+
+// Update location of single user by userID
+router.put("/updateLocation/:userId", async (req, res) => {
+  (async () => {
+    try {
+      await UserAccount.updateLocation(req.params.userId, req.body);
+      return res.status(200).send({success: "Success", message: "User location updated successfully"});
     } catch (error) {
       console.log(error);
       return res.status(500).send({success: "Failed", message: error});
