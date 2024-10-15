@@ -2,14 +2,15 @@
 const admin = require("firebase-admin");
 const db = admin.firestore();
 const {v4: uuidv4} = require("uuid");
-require("./location");
+const GPSLocation = require("./location");
+const Region = require("./region");
 
-const allowedAttributes = [
+const allowedUpdate = [
   "UserName",
   "UserEmail",
   "UserContactNumber",
-  "UserGPSLocation",
-  "UserGPSLastUpdated",
+  // "UserGPSLocation",
+  // "UserGPSLastUpdated",
 ];
 
 /**
@@ -22,6 +23,7 @@ class UserAccount {
    * @param {string} UserContactNumber - The phone number of the user.
    * @param {string} UserEmail - The email of the user.
    * @param {GPSLocation} UserGPSLocation - The GPS location of the user.
+   * @param {Region} UserRegionId - The region of the user.
    * @param {Timestamp} UserGPSLastUpdated - The last updated GPS location of the user.
    */
   constructor(name, email, phone, gpsLocation, gpsLastUpdated) {
@@ -31,6 +33,7 @@ class UserAccount {
     this.UserContactNumber = phone || null;
     this.UserGPSLocation = gpsLocation || null;
     this.UserGPSLastUpdated = gpsLastUpdated || null;
+    this.UserRegionId = null;
   }
 
   /**
@@ -42,8 +45,19 @@ class UserAccount {
   }
 
   /**
-   * Create map of field
-   * @returns
+   * Filter out any attributes that are not allowed
+   */
+  static filter(data) {
+    return Object.keys(data).reduce((filteredData, key) => {
+      if (allowedUpdate.includes(key)) {
+        filteredData[key] = data[key];
+      }
+      return filteredData;
+    }, {});
+  }
+
+  /**
+   * Convert the user account to a map.
    */
   toMap() {
     return {
@@ -57,16 +71,10 @@ class UserAccount {
   }
 
   /**
-   * Filter out any attributes that are not allowed
+   * ================================================================
+   *                       CREATE METHODS
+   * ================================================================
    */
-  static validateData(data) {
-    return Object.keys(data)
-        .filter((key) => allowedAttributes.includes(key))
-        .reduce((obj, key) => {
-          obj[key] = data[key];
-          return obj;
-        }, {});
-  }
 
   /**
    * Create a new user account in Firestore.
@@ -75,10 +83,24 @@ class UserAccount {
    */
   static async create(data) {
     const user = UserAccount.fromData(data);
+
+    // get the region of the user
+    const region = await Region.getByLocation(user.UserGPSLocation);
+    user.UserRegionId = region.regionId;
+
     console.log(user);
+
+    // create the user document
     await db.collection("UserAccount").doc(user.UserId).set(user.toMap());
+
     return user;
   }
+
+  /**
+   * ================================================================
+   *                       READ METHODS
+   * ================================================================
+   */
 
   /**
    * Get a user by ID from Firestore.
@@ -91,8 +113,28 @@ class UserAccount {
     if (!doc.exists) {
       throw new Error("User not found");
     }
-    return doc.data();
+
+    const user = UserAccount.fromData(doc.data());
+    return user;
   }
+
+  /**
+   * Get all users from Firestore.
+   */
+  static async getAll() {
+    const querySnapshot = await db.collection("UserAccount").get();
+    const users = [];
+    querySnapshot.forEach((doc) => {
+      users.push(UserAccount.fromData(doc.data()));
+    });
+    return users;
+  }
+
+  /**
+   * ================================================================
+   *                       UPDATE METHODS
+   * ================================================================
+   */
 
   /**
    * Update a user by ID in Firestore.
@@ -108,14 +150,50 @@ class UserAccount {
     }
 
     // filter out any attributes that are not allowed
-    const validatedData = this.validateData(data);
-    await userRef.update(validatedData);
+    const filteredData = this.filter(data);
 
-    // get the updated document
+    // update the user document
+    await userRef.update(filteredData);
     const updatedDoc = await userRef.get();
 
     return updatedDoc.data();
   }
+
+  /**
+   * Update user location by ID in Firestore.
+   * @param {string} userId - The ID of the user.
+   * @param {Object} data - The new location data.
+   * @return {Promise<Object>} The updated user data.
+   */
+  static async updateLocation(userId, data) {
+    // get the user document
+    const userRef = db.collection("UserAccount").doc(userId);
+    if (!(await userRef.get()).exists) {
+      throw new Error("User not found");
+    }
+
+    // create a new GPSLocation object
+    const newLocation = GPSLocation.fromData(data);
+
+    // get the region based on the new location
+    const region = await Region.getByLocation(newLocation);
+
+    // update the user GPSLocation and UserRegionId in one operation
+    await userRef.update({
+      ...newLocation.toMap(),
+      UserRegionId: region.regionId,
+    });
+
+    const updatedDoc = await userRef.get();
+
+    return updatedDoc.data();
+  }
+
+  /**
+   * ================================================================
+   *                       DELETE METHODS
+   * ================================================================
+   */
 
   /**
    * Delete a user by ID from Firestore.
