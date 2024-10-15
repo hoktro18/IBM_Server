@@ -1,15 +1,13 @@
 /* eslint-disable new-cap */
 const express = require("express");
 const router = express.Router();
-const {UserAccount} = require("@models");
-
 /*
 *****************************
     CREATE FUNCTION
 *****************************
 */
 
-app.post('/check-storm', async (req, res) => {
+router.post("/checkstorm", async (req, res) => {
     const { latitude, longitude } = req.body;
 
     // Validate the input
@@ -26,3 +24,5 @@ app.post('/check-storm', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while checking the storm' });
     }
 });
+
+module.exports = router;

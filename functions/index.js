@@ -4,7 +4,8 @@ require("module-alias/register");
 // Set up firebase admin
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
-const serviceAccount = require("./serviceAccountKey.json");
+const serviceAccount = require("../serviceAccountKey.json");
+require('dotenv').config();
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -28,7 +29,12 @@ app.get("/", (req, res) => {
 
 // User Routes
 app.use("/user", userRoutes);
-app.use('/weather', stormRoutes);
+app.use("/weather", stormRoutes);
+
+const port = 3000;  // You can use any port you want
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
 
 // Export the API to Firebase Cloud Functions
 exports.app = functions.https.onRequest(app);
