@@ -4,6 +4,7 @@ const db = admin.firestore();
 const {v4: uuidv4} = require("uuid");
 const GPSLocation = require("./location");
 const Region = require("./region");
+const {subscribeToTopic, unsubscribeFromTopic} = require("@utils/services/FCMService");
 
 const allowedUpdate = [
   "UserName",
@@ -26,14 +27,15 @@ class UserAccount {
    * @param {Region} UserRegionId - The region of the user.
    * @param {Timestamp} UserGPSLastUpdated - The last updated GPS location of the user.
    */
-  constructor(name, email, phone, gpsLocation, gpsLastUpdated) {
+  constructor(name, email, phone, gpsLocation, gpsLastUpdated, regionId, token) {
     this.UserId = uuidv4();
     this.UserName = name || null;
     this.UserEmail = email || null;
     this.UserContactNumber = phone || null;
     this.UserGPSLocation = gpsLocation || null;
     this.UserGPSLastUpdated = gpsLastUpdated || null;
-    this.UserRegionId = null;
+    this.UserRegionId = regionId || null;
+    this.UserToken = token || null;
   }
 
   /**
@@ -41,7 +43,7 @@ class UserAccount {
    * @returns {UserAccount}
    */
   static fromData(data) {
-    return new UserAccount(data.UserName, data.UserEmail, data.UserContactNumber, data.UserGPSLocation, data.UserGPSLastUpdated);
+    return new UserAccount(data.UserName, data.UserEmail, data.UserContactNumber, data.UserGPSLocation, data.UserGPSLastUpdated, data.UserRegionId, data.UserToken);
   }
 
   /**
@@ -67,6 +69,8 @@ class UserAccount {
       UserContactNumber: this.UserContactNumber,
       UserGPSLocation: this.UserGPSLocation,
       UserGPSLastUpdated: this.UserGPSLastUpdated,
+      UserRegionId: this.UserRegionId,
+      UserToken: this.UserToken,
     };
   }
 
@@ -82,6 +86,7 @@ class UserAccount {
    * @return {Promise<UserAccount>} The created user account.
    */
   static async create(data) {
+    data = this.filter(data);
     const user = UserAccount.fromData(data);
 
     console.log(user);
@@ -168,8 +173,14 @@ class UserAccount {
       throw new Error("User not found");
     }
 
+    // unsubscribe from the old region
+    const currentUser = await userRef.get();
+    if ( currentUser.data().UserToken !== null && currentUser.data().UserRegionId !== undefined) {
+      unsubscribeFromTopic(currentUser.data().UserToken, currentUser.data().UserRegionId);
+    }
+
     // create a new GPSLocation object
-    const newLocation = GPSLocation.fromData(data);
+    const newLocation = GPSLocation.fromData(data.location);
 
     // get the region based on the new location
     const region = await Region.getRegionIdByLocation(newLocation);
@@ -178,10 +189,14 @@ class UserAccount {
     await userRef.update({
       ...newLocation.toMap(),
       UserRegionId: region.regionId,
+      UserToken: data.token,
+      UserGPSLastUpdated: data.updateDate,
     });
 
-    const updatedDoc = await userRef.get();
+    // subscribe to the new region
+    subscribeToTopic(data.token, region.regionId);
 
+    const updatedDoc = await userRef.get();
     return updatedDoc.data();
   }
 
