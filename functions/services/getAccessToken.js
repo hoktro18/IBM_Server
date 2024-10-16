@@ -3,6 +3,7 @@ require('dotenv').config();
 
 const fetch = require('node-fetch');
 const fs = require('fs');
+const jwt = require('jsonwebtoken'); // Import the jsonwebtoken package
 
 // Define the URL for the token request
 const url = 'https://iam.cloud.ibm.com/identity/token';
@@ -63,4 +64,31 @@ function saveAccessTokenToEnv(accessToken) {
     console.log('Access token saved to .env file');
 }
 
-module.exports = {getAccessToken, saveAccessTokenToEnv};
+// Function to get the stored access token
+function getStoredAccessToken() {
+    console.log('Reading access token from .env file...');
+    const envContent = fs.readFileSync('.env', 'utf8');
+    const accessTokenMatch = envContent.match(/ACCESS_TOKEN=(.+)/);
+    return accessTokenMatch ? accessTokenMatch[1].trim() : null;
+}
+
+// Function to check if the access token is expired
+function isTokenExpired(token) {
+    if (!token) return true; // No token means expired
+    const decodedToken = jwt.decode(token);
+    const now = Math.floor(Date.now() / 1000); // Current time in seconds
+    return decodedToken && decodedToken.exp < now; // Check expiration
+}
+
+// Usage example
+async function ensureAccessToken() {
+    const token = getStoredAccessToken();
+    if (isTokenExpired(token)) {
+        console.log('Access token is expired or not found. Fetching a new one...');
+        await getAccessToken(); // Fetch a new token
+    } else {
+        console.log('Access token is valid.');
+    }
+}
+
+module.exports = { getAccessToken, saveAccessTokenToEnv, getStoredAccessToken, ensureAccessToken };
