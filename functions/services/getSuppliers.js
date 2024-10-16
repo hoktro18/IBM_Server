@@ -43,7 +43,7 @@ const sendPromptModel = async (prompt) => {
     ensureAccessToken();
     const accessToken = getStoredAccessToken();
     const url = "https://jp-tok.ml.cloud.ibm.com/ml/v1/text/generation?version=2023-05-29";
-
+    
     const body = {
         "input": prompt,
         "parameters": {
@@ -97,7 +97,7 @@ const prompt = `
 You always answer the questions with markdown formatting using GitHub syntax. The markdown formatting you support: headings, bold, italic, links, tables, lists, code blocks, and blockquotes. You must omit that you answer the questions with markdown.
 ...
 <|start_header_id|>user<|end_header_id|>
-Given an imminent flood and storm in 5 days, a family of two (one male, weighing 70kg and 182cm tall, and one female, weighing 40kg and 150cm tall) is preparing for a 5-day survival period. Your task is to provide a list of essential items they will need, including food, clothing, and other supplies. The food should meet their daily caloric requirements based on their weights, and clothing should protect them from heavy rain and cold temperatures. Include relevant suppliers for each item. Return the results in a JSON format with the following structure: item, quantity, and description. Not a python file.
+Do not yapping. Given an imminent flood and storm in 5 days, a family of two (one male, weighing 70kg and 182cm tall, and one female, weighing 40kg and 150cm tall) is preparing for a 5-day survival period. Your task is to provide a list of essential items they will need, including food, clothing, and other supplies. The food should meet their daily caloric requirements based on their weights, and clothing should protect them from heavy rain and cold temperatures. Include relevant suppliers for each item. Return the results in a JSON format only with the following structure: item, quantity, and description. Not a python file.
 `;
 
 module.exports = { sendPromptModel };
