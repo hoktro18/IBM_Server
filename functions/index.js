@@ -15,12 +15,14 @@ admin.initializeApp({
 const express = require("express");
 const cors = require("cors");
 
+
 // Route imports
 const {userRoutes,stormRoutes} = require("@routes");
 
 // Main App
 const app = express();
 app.use(cors({origin: true}));
+app.use(express.json());
 
 // Base Route
 app.get("/", (req, res) => {

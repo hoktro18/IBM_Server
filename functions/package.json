@@ -7,13 +7,15 @@
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+    "dev": "nodemon index.js"
   },
   "engines": {
     "node": "18"
   },
   "main": "index.js",
   "dependencies": {
+    "axios": "^1.7.7",
     "cors": "^2.8.5",
     "express": "^4.21.1",
     "firebase-admin": "^12.6.0",

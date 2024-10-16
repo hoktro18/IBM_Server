@@ -7,7 +7,9 @@ const router = express.Router();
 *****************************
 */
 
+const {getStormInfo} = require("../../services/checkStorm")
 router.post("/checkstorm", async (req, res) => {
+    // console.log("HEHE")
     const { latitude, longitude } = req.body;
 
     // Validate the input
@@ -16,8 +18,7 @@ router.post("/checkstorm", async (req, res) => {
     }
 
     try {
-        // Step 4: Call the storm detection API
-        const stormData = await checkStorm(latitude, longitude);
+        const stormData = await getStormInfo(latitude, longitude);
         res.json(stormData);
     } catch (error) {
         console.error(error);
