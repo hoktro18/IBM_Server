@@ -21,23 +21,39 @@ const getStormInfo = async (latitude, longitude) => {
     }
 };
 
-const checkStorm = (latitude, longitude) => {
-    const isStorm = false;
-    const day = 0;
 
-    const dailyForcast = getStormInfo(latitude, longitude).then((data) => {
-        data.daily; 
+// If return 0 => No storm
+// other, return 3D-tuple: [level of storm (1,2,3), start day of the storm. end Day of the storm]. Note, as increasing of storm level, as 
+const checkStorm = (latitude, longitude) => {
+    let stormLevel = 0;
+    let firstCount = false;
+
+    let counter = 0, startDay = 0;
+    let maxWind = 0;
+
+    getStormInfo(latitude, longitude).then((data) => { 
         for (let element of data.daily){
-            if (element['wind_speed'] >= 17.5){
-                isStorm = true;
-                day++;
+            let tempStormDuration = []
+            if (element['wind_speed'] >= 17.5){       
+                if (firstCount == false) {
+                    startDay = counter;
+                    firstCount = true;
+                }
+                counter ++;
+
+                if (maxWind < element['wind_speed']) maxWind = element['wind_speed'];
+            } else {
+                if (firstCount == false) continue;
+
+                if (maxWind <= 24.7) stormLevel = 1;
+                else if (maxWind <= 32.7) stormLevel = 2;
+                else stormLevel = 3;
+                return [stormLevel, startDay, counter];
             }
         };
     });
-    //const dailyForcast = weatherInfo['daily'].then((array)=>console.log(array));
-    // console.log(dailyForcast)
     
-    return [isStorm, day];
+    return 0;
 };
 
 module.exports = { getStormInfo, checkStorm};
