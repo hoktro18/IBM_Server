@@ -84,10 +84,6 @@ class UserAccount {
   static async create(data) {
     const user = UserAccount.fromData(data);
 
-    // get the region of the user
-    const region = await Region.getByLocation(user.UserGPSLocation);
-    user.UserRegionId = region.regionId;
-
     console.log(user);
 
     // create the user document
@@ -176,7 +172,7 @@ class UserAccount {
     const newLocation = GPSLocation.fromData(data);
 
     // get the region based on the new location
-    const region = await Region.getByLocation(newLocation);
+    const region = await Region.getRegionIdByLocation(newLocation);
 
     // update the user GPSLocation and UserRegionId in one operation
     await userRef.update({
