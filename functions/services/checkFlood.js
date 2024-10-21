@@ -38,7 +38,7 @@ const getFloodData = async (latitude, longitude) => {
     }
 
 
-    
+    console.log('Flood periods:', floodPeriods);
     return [isFlood, floodPeriods];
 
   } catch (error) {
