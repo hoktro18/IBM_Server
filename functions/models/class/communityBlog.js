@@ -9,7 +9,7 @@ const UserAccount = require("./userAccount");
  */
 
 const allowedUpdate = [
-  "blogContext",
+  "blogContent",
 ];
 
 class CommunityBlog {
@@ -18,14 +18,14 @@ class CommunityBlog {
      * @param {string} blogId - The id of the blog.
      * @param {string} regionId - The id of the region.
      * @param {string} senderId - The id of the sender.
-     * @param {string} blogContext - The context of the blog.
+     * @param {string} blogContent - The content of the blog.
      */
 
-  constructor(regionId, senderId, blogContext) {
+  constructor(regionId, senderId, blogContent) {
     this.blogId = uuidv4();
     this.regionId = regionId;
     this.senderId = senderId;
-    this.blogContext = blogContext;
+    this.blogContent = blogContent;
   }
 
   /**
@@ -44,7 +44,7 @@ class CommunityBlog {
    * Create object from data
    */
   static fromData(data) {
-    return new CommunityBlog(data.regionId, data.senderId, data.blogContext);
+    return new CommunityBlog(data.regionId, data.senderId, data.blogContent);
   }
 
   /**
