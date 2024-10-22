@@ -1,7 +1,7 @@
 /* eslint-disable new-cap */
 const express = require("express");
 const router = express.Router();
-const {UserAccount} = require("@models");
+const UserAccount = require("@models/class/userAccount");
 
 /*
 *****************************
@@ -10,6 +10,7 @@ const {UserAccount} = require("@models");
 */
 // Create a new user
 router.post("/create", async (req, res) => {
+  console.log(req.body);
   (async () => {
     try {
       const newUser = await UserAccount.create(req.body);
@@ -45,6 +46,7 @@ router.get("/get/:userId", async (req, res) => {
 
 // Get all users
 router.get("/getAll", async (req, res) => {
+  console.log("Get all users");
   (async () => {
     try {
       const users = await UserAccount.getAll();
