@@ -19,7 +19,7 @@ router.post("/create", async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).send({success: "Failed", message: error});
+    return res.status(500).send({success: "Failed", message: error.message || error.toString()});
   }
 });
 
@@ -35,7 +35,7 @@ router.get("/get/:blogId", async (req, res) => {
     return res.status(200).send({status: "Success", data: blog});
   } catch (error) {
     console.log(error);
-    return res.status(500).send({success: "Failed", message: error});
+    return res.status(500).send({success: "Failed", message: error.message || error.toString()});
   }
 });
 
@@ -46,7 +46,7 @@ router.get("/getAll", async (req, res) => {
     return res.status(200).send({status: "Success", data: blogs});
   } catch (error) {
     console.log(error);
-    return res.status(500).send({success: "Failed", message: error});
+    return res.status(500).send({success: "Failed", message: error.message || error.toString()});
   }
 });
 
@@ -57,7 +57,7 @@ router.get("/getAll/:regionId", async (req, res) => {
     return res.status(200).send({status: "Success", data: blogs});
   } catch (error) {
     console.log(error);
-    return res.status(500).send({success: "Failed", message: error});
+    return res.status(500).send({success: "Failed", message: error.message || error.toString()});
   }
 });
 
@@ -73,7 +73,7 @@ router.put("/update/:blogId", async (req, res) => {
     return res.status(200).send({success: "Success", message: "Blog updated successfully"});
   } catch (error) {
     console.log(error);
-    return res.status(500).send({success: "Failed", message: error});
+    return res.status(500).send({success: "Failed", message: error.message || error.toString()});
   }
 });
 
@@ -89,7 +89,7 @@ router.delete("/delete/:blogId", async (req, res) => {
     return res.status(200).send({success: "Success", message: "Blog deleted successfully"});
   } catch (error) {
     console.log(error);
-    return res.status(500).send({success: "Failed", message: error});
+    return res.status(500).send({success: "Failed", message: error.message || error.toString()});
   }
 });
 
@@ -100,7 +100,7 @@ router.delete("/deleteAll", async (req, res) => {
     return res.status(200).send({success: "Success", message: "All blogs deleted successfully"});
   } catch (error) {
     console.log(error);
-    return res.status(500).send({success: "Failed", message: error});
+    return res.status(500).send({success: "Failed", message: error.message || error.toString()});
   }
 });
 

@@ -19,7 +19,7 @@ router.post("/create", async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).send({success: "Failed", message: error});
+    return res.status(500).send({success: "Failed", message: error.message || error.toString()});
   }
 });
 
@@ -35,7 +35,7 @@ router.get("/get/:userId", async (req, res) => {
     return res.status(200).send({status: "Success", data: userAccount});
   } catch (error) {
     console.log(error);
-    return res.status(500).send({success: "Failed", message: error.message});
+    return res.status(500).send({success: "Failed", message: error.message || error.toString()});
   }
 });
 
@@ -46,7 +46,7 @@ router.get("/getAll", async (req, res) => {
     return res.status(200).send({status: "Success", data: users});
   } catch (error) {
     console.log(error);
-    return res.status(500).send({success: "Failed", message: error});
+    return res.status(500).send({success: "Failed", message: error.message || error.toString()});
   }
 });
 
@@ -62,7 +62,7 @@ router.put("/update/:userId", async (req, res) => {
     return res.status(200).send({success: "Success", message: "User updated successfully"});
   } catch (error) {
     console.log(error);
-    return res.status(500).send({success: "Failed", message: error});
+    return res.status(500).send({success: "Failed", message: error.message || error.toString()});
   }
 });
 
@@ -73,7 +73,7 @@ router.put("/updateLocation/:userId", async (req, res) => {
     return res.status(200).send({success: "Success", message: "User location updated successfully"});
   } catch (error) {
     console.log(error);
-    return res.status(500).send({success: "Failed", message: error});
+    return res.status(500).send({success: "Failed", message: error.message || error.toString()});
   }
 });
 
@@ -89,7 +89,7 @@ router.delete("/delete/:userId", async (req, res) => {
     return res.status(200).send({success: "Success", message: "User deleted successfully"});
   } catch (error) {
     console.log(error);
-    return res.status(500).send({success: "Failed", message: error});
+    return res.status(500).send({success: "Failed", message: error.message || error.toString()});
   }
 });
 
