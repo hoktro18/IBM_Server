@@ -21,8 +21,8 @@ class CommunityBlog {
      * @param {string} blogContent - The content of the blog.
      */
 
-  constructor(regionId, senderId, blogContent) {
-    this.blogId = uuidv4();
+  constructor(id, regionId, senderId, blogContent) {
+    this.blogId = id;
     this.regionId = regionId;
     this.senderId = senderId;
     this.blogContent = blogContent;
@@ -43,8 +43,27 @@ class CommunityBlog {
   /**
    * Create object from data
    */
+  static createFromData(data) {
+    return new CommunityBlog(uuidv4(), data.regionId, data.senderId, data.blogContent);
+  }
+
+  /**
+   * Read object from data
+   */
   static fromData(data) {
-    return new CommunityBlog(data.regionId, data.senderId, data.blogContent);
+    return new CommunityBlog(data.blogId, data.regionId, data.senderId, data.blogContent);
+  }
+
+  /**
+   * Create map of field
+   */
+  toJSON() {
+    return {
+      blogId: this.blogId,
+      regionId: this.regionId,
+      senderId: this.senderId,
+      blogContent: this.blogContent,
+    };
   }
 
   /**
@@ -70,7 +89,7 @@ class CommunityBlog {
     const newBlog = CommunityBlog.fromData(data);
 
     // save blog to firestore
-    await db.collection("CommunityBlog").doc(newBlog.blogId).set(newBlog.toMap());
+    await db.collection("CommunityBlog").doc(newBlog.blogId).set(newBlog.toJSON());
 
     return newBlog;
   }

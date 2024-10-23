@@ -33,7 +33,7 @@ class GPSLocation {
   /**
    * Create map of field
    */
-  toMap() {
+  toJSON() {
     return {
       latitude: this.latitude,
       longitude: this.longitude,

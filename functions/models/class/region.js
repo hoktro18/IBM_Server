@@ -1,6 +1,8 @@
+/* eslint-disable no-unused-vars */
 const admin = require("firebase-admin");
 const db = admin.firestore();
 const {v4: uuidv4} = require("uuid");
+const GPSLocation = require("./location");
 
 const allowedUpdate = [
   "regionStatus",
@@ -21,20 +23,20 @@ class Region {
    * @param {Timestamp} regionStatusLastUpdated - The last updated status of the region.
   */
 
-  constructor(gpsLocation, status, statusLastUpdated) {
-    this.regionId = uuidv4();
+  constructor(id, gpsLocation, status, statusLastUpdated) {
+    this.regionId = id;
     this.regionGPSLocation = gpsLocation;
     this.regionCity = gpsLocation.city;
     this.regionCountry = gpsLocation.country;
-    this.regionStatus = status;
+    this.regionStatus = status || "Safe";
     this.regionStatusLastUpdated = statusLastUpdated;
   }
 
   /**
-   * Create object from data
+   * Read object from data
    */
-  static fromData(data) {
-    return new Region(data.regionGPSLocation, data.regionStatus, data.regionStatusLastUpdated);
+  static readFromData(data) {
+    return new Region( data.regionId, data.regionGPSLocation, data.regionStatus, data.regionStatusLastUpdated);
   }
 
   /**
@@ -52,12 +54,12 @@ class Region {
   /**
    * Convert the region to a map.
    */
-  toMap() {
+  toJSON() {
     return {
       regionId: this.regionId,
       regionCity: this.regionCity,
       regionCountry: this.regionCountry,
-      regionGPSLocation: this.regionGPSLocation,
+      regionGPSLocation: this.regionGPSLocation.toJSON(),
       regionStatus: this.regionStatus,
       regionStatusLastUpdated: this.regionStatusLastUpdated,
     };
@@ -74,12 +76,8 @@ class Region {
    */
   static async create(location) {
     // **************************************************
-    // NOTE: This is a dummy data. Replace with actual data
-    const regionStatus = "Safe";
-    const regionStatusLastUpdated = new Date();
-    // **************************************************
-    const newRegion = new Region(location, regionStatus, regionStatusLastUpdated);
-    await db.collection("Region").doc(newRegion.regionId).set(newRegion.toMap());
+    const newRegion = new Region(uuidv4(), location, "Safe", admin.firestore.Timestamp.now());
+    await db.collection("Region").doc(newRegion.regionId).set(newRegion.toJSON());
     return newRegion;
   }
 
@@ -98,7 +96,7 @@ class Region {
       throw new Error("Region not found");
     }
     const regionData = region.data();
-    return regionData;
+    return Region.readFromData(regionData);
   }
 
   /**
@@ -120,6 +118,8 @@ class Region {
     if (region.empty) {
       region = await Region.create(location);
     }
+
+    console.log(region);
 
     return region;
   }

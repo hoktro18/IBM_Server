@@ -27,8 +27,8 @@ class UserAccount {
    * @param {Region} UserRegionId - The region of the user.
    * @param {Timestamp} UserGPSLastUpdated - The last updated GPS location of the user.
    */
-  constructor(name, email, phone, gpsLocation, gpsLastUpdated, regionId, token) {
-    this.UserId = uuidv4();
+  constructor(id, name, email, phone, gpsLocation, gpsLastUpdated, regionId, token) {
+    this.UserId = id;
     this.UserName = name || null;
     this.UserEmail = email || null;
     this.UserContactNumber = phone || null;
@@ -39,11 +39,16 @@ class UserAccount {
   }
 
   /**
+   * Create a user account from data.
    * @param {Object} data
    * @returns {UserAccount}
    */
-  static fromData(data) {
-    return new UserAccount(data.UserName, data.UserEmail, data.UserContactNumber, data.UserGPSLocation, data.UserGPSLastUpdated, data.UserRegionId, data.UserToken);
+  static createFromData(data) {
+    return new UserAccount( uuidv4(), data.UserName, data.UserEmail, data.UserContactNumber, data.UserGPSLocation, data.UserGPSLastUpdated, data.UserRegionId, data.UserToken);
+  }
+
+  static readFromData(data) {
+    return new UserAccount( data.UserId, data.UserName, data.UserEmail, data.UserContactNumber, data.UserGPSLocation, data.UserGPSLastUpdated, data.UserRegionId, data.UserToken);
   }
 
   /**
@@ -61,13 +66,13 @@ class UserAccount {
   /**
    * Convert the user account to a map.
    */
-  toMap() {
+  toJSON() {
     return {
       UserId: this.UserId,
       UserName: this.UserName,
       UserEmail: this.UserEmail,
       UserContactNumber: this.UserContactNumber,
-      UserGPSLocation: this.UserGPSLocation,
+      UserGPSLocation: this.UserGPSLocation.toJSON(),
       UserGPSLastUpdated: this.UserGPSLastUpdated,
       UserRegionId: this.UserRegionId,
       UserToken: this.UserToken,
@@ -87,12 +92,12 @@ class UserAccount {
    */
   static async create(data) {
     data = this.filter(data);
-    const user = UserAccount.fromData(data);
+    const user = UserAccount.createFromData(data);
 
     console.log(user);
 
     // create the user document
-    await db.collection("UserAccount").doc(user.UserId).set(user.toMap());
+    await db.collection("UserAccount").doc(user.UserId).set(user.toJSON());
 
     return user;
   }
@@ -115,7 +120,7 @@ class UserAccount {
       throw new Error("User not found");
     }
 
-    const user = UserAccount.fromData(doc.data());
+    const user = UserAccount.readFromData(doc.data());
     return user;
   }
 
@@ -126,7 +131,7 @@ class UserAccount {
     const querySnapshot = await db.collection("UserAccount").get();
     const users = [];
     querySnapshot.forEach((doc) => {
-      users.push(UserAccount.fromData(doc.data()));
+      users.push(UserAccount.readFromData(doc.data()));
     });
     return users;
   }
@@ -187,14 +192,16 @@ class UserAccount {
 
     // update the user GPSLocation and UserRegionId in one operation
     await userRef.update({
-      ...newLocation.toMap(),
+      UserGPSLocation: newLocation.toJSON(),
       UserRegionId: region.regionId,
-      UserToken: data.token,
+      UserToken: data.token || null,
       UserGPSLastUpdated: data.updateDate,
     });
 
-    // subscribe to the new region
-    subscribeToTopic(data.token, region.regionId);
+    // subscribe to the new region if data has a token
+    if (data.token) {
+      subscribeToTopic(data.token, region.regionId);
+    }
 
     const updatedDoc = await userRef.get();
     return updatedDoc.data();
