@@ -86,7 +86,7 @@ router.post("/getsuppliers", async (req, res) => {
     const prompt = `
 Given an imminent flood and storm in ${day} days, a family of ${members.length} members is preparing for a ${day}-day survival period. 
 ${memberDetails}
-Provide a list of essential items in three categories: food, clothing, and other supplies.
+Provide a list of essential items in three categories: food, clothing, and other_supplies.
 The food should meet their daily caloric requirements based on their weights, and clothing should protect them from heavy rain and cold temperatures. 
 Include relevant suppliers for each item. Return the results in a JSON format only with the following structure: item, quantity, and description. All values in JSON format should be strings, wrapped by " and ".
 Not a python file. Do not yapping.
