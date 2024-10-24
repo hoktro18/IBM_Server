@@ -32,7 +32,7 @@ class UserAccount {
     this.UserName = name || null;
     this.UserEmail = email || null;
     this.UserContactNumber = phone || null;
-    this.UserGPSLocation = gpsLocation || null;
+    this.UserGPSLocation = gpsLocation ? GPSLocation.fromData(gpsLocation) : null;
     this.UserGPSLastUpdated = gpsLastUpdated || null;
     this.UserRegionId = regionId || null;
     this.UserToken = token || null;
@@ -72,7 +72,7 @@ class UserAccount {
       UserName: this.UserName,
       UserEmail: this.UserEmail,
       UserContactNumber: this.UserContactNumber,
-      UserGPSLocation: this.UserGPSLocation.toJSON(),
+      UserGPSLocation: this.UserGPSLocation ? this.UserGPSLocation.toJSON() : null,
       UserGPSLastUpdated: this.UserGPSLastUpdated,
       UserRegionId: this.UserRegionId,
       UserToken: this.UserToken,

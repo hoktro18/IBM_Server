@@ -24,7 +24,7 @@ class Region {
 
   constructor(id, gpsLocation, status, statusLastUpdated) {
     this.regionId = id;
-    this.regionGPSLocation = gpsLocation;
+    this.regionGPSLocation = gpsLocation ? GPSLocation.fromData(gpsLocation) : null;
     this.regionCity = gpsLocation.city;
     this.regionCountry = gpsLocation.country;
     this.regionStatus = status || "Safe";
@@ -58,7 +58,7 @@ class Region {
       regionId: this.regionId,
       regionCity: this.regionCity,
       regionCountry: this.regionCountry,
-      regionGPSLocation: this.regionGPSLocation.toJSON(),
+      regionGPSLocation: this.regionGPSLocation ? this.regionGPSLocation.toJSON() : null,
       regionStatus: this.regionStatus,
       regionStatusLastUpdated: this.regionStatusLastUpdated,
     };
