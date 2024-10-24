@@ -123,6 +123,18 @@ class Region {
 
     return region;
   }
+
+  /**
+   * Get all regions
+   */
+  static async getAll() {
+    const querySnapshot = await db.collection("Region").get();
+    const regions = [];
+    querySnapshot.forEach((doc) => {
+      regions.push(Region.readFromData(doc.data()));
+    });
+    return regions;
+  }
 }
 
 module.exports = Region;
