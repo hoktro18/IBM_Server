@@ -5,7 +5,7 @@ require("firebase-admin/messaging");
 /**
  * Function to send a notification to a topic
  */
-const sendNotification = (regionId, type, date, duration) => {
+const sendNotification = (regionId, type, date, stormLevel) => {
   const title = "WARNING!!!";
   const body = "INCOMING " + type.toUpperCase() + ".";
 
@@ -16,7 +16,7 @@ const sendNotification = (regionId, type, date, duration) => {
     },
     data: {
       date: date,
-      duration: duration,
+      stormLevel: stormLevel,
     },
     topic: regionId,
   };

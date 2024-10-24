@@ -1,3 +1,7 @@
+const UserAccount = require("@models/class/userAccount");
+const Region = require("@models/class/region");
+const {sendNotification} = require("../utils/services/FCMService")
+
 const axios = require('axios');
 require('dotenv').config(); // Load environment variables
 
@@ -56,4 +60,37 @@ const checkStorm = (latitude, longitude) => {
     return 0;
 };
 
-module.exports = { getStormInfo, checkStorm};
+const periodCheck = () => {
+    const currentDate = new Date().toDateString();
+
+    (async () => { try {
+        const users = await UserAccount.getAll();
+        const regions = await Region.getAll();
+        for (let i = 0; i < regions.length; i++){
+            const status = checkStorm(regions[i].regionGPSLocation.latitude, regions[i].regionGPSLocation.longitude);
+            if(status == 0) {
+                Region.updateStatus(regions[i].regionId, 'Safe');
+            } else {
+                Region.updateStatus(regions[i].regionId, 'Warning');
+                if (status[0] < 3){
+                    sendNotification(regions[i].regionId, 'Storm', currentDate, status[0]);
+                } else {
+                    sendNotification(regions[i].regionId, 'Hurricane', currentDate, status[0]);
+                }
+            }
+            //console.log("hello world");
+        }
+        
+        //console.log(users)
+
+        return 0;
+      } catch (error) {
+        console.log(error);
+        return 1
+      }
+    })();
+    
+    
+}
+
+module.exports = { getStormInfo, checkStorm, periodCheck};

@@ -5,6 +5,9 @@ require("module-alias/register");
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const serviceAccount = require("./serviceAccountKey.json");
+
+const notificationInterval = 86400000;
+
 require("dotenv").config();
 
 admin.initializeApp({
@@ -14,7 +17,7 @@ admin.initializeApp({
 // Import the express library
 const express = require("express");
 const cors = require("cors");
-
+const {periodCheck} = require('./services/checkStorm')
 
 // Route imports
 const {userRoutes, stormRoutes} = require("@routes");
@@ -28,6 +31,13 @@ app.use((req, res, next) => {
   res.setHeader("Content-Type", "application/json");
   next();
 });
+
+// Function to be run periodically
+function periodicallyNotification() {
+  periodCheck();
+}
+
+setInterval(periodicallyNotification, notificationInterval);
 
 // Base Route
 app.get("/", (req, res) => {
