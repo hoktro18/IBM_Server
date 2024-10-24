@@ -81,7 +81,7 @@ router.post("/getsuppliers", async (req, res) => {
     if (day1 !=0)
         day = day1;
     // Construct the prompt using the extracted data, excluding HealthName
-    const memberDetails = members.map(member => `${member.HealthGender}, weighing ${member.HealthWeight}kg and ${member.HealthHeight}cm tall`).join('; ');
+    const memberDetails = members.map(member => `${member.HealthGender}, ${member.HealthAge} years old,  weighing ${member.HealthWeight}kg and ${member.HealthHeight}cm tall`).join('; ');
 
     const prompt = `
 Given an imminent flood and storm in ${day} days, a family of ${members.length} members is preparing for a ${day}-day survival period. 
@@ -93,13 +93,120 @@ Not a python file. Do not yapping.
 
 `;
     console.log(prompt);
+    // create json object
+    
     try {
         const response = await sendPromptModelAnother(prompt);
         res.json(response);
+
         console.log(response);
+
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'An error occurred while checking the suppliers' });
     }
+
+    // const survivalSupplies = {
+    //     food: [
+    //         {
+    //             item: "Canned beans",
+    //             quantity: "20",
+    //             description: "High in protein and can be stored for a long time"
+    //         },
+    //         {
+    //             item: "Peanut butter",
+    //             quantity: "5",
+    //             description: "High calorie, protein source, and does not require cooking"
+    //         },
+    //         {
+    //             item: "Canned vegetables",
+    //             quantity: "20",
+    //             description: "Provides essential nutrients and can be eaten right from the can"
+    //         },
+    //         {
+    //             item: "Rice",
+    //             quantity: "5kg",
+    //             description: "Non-perishable carbohydrate source"
+    //         },
+    //         {
+    //             item: "Dried fruits",
+    //             quantity: "2kg",
+    //             description: "High in calories and sugars for quick energy"
+    //         },
+    //         {
+    //             item: "Instant oatmeal",
+    //             quantity: "10 packets",
+    //             description: "Quick to prepare breakfast option"
+    //         },
+    //         {
+    //             item: "Water",
+    //             quantity: "100 liters",
+    //             description: "Essential for hydration during the survival period"
+    //         }
+    //     ],
+    //     clothing: [
+    //         {
+    //             item: "Rain jackets",
+    //             quantity: "5",
+    //             description: "Waterproof jackets to protect from rain"
+    //         },
+    //         {
+    //             item: "Warm fleece jackets",
+    //             quantity: "5",
+    //             description: "Keeps warm during cold temperatures"
+    //         },
+    //         {
+    //             item: "Waterproof boots",
+    //             quantity: "5 pairs",
+    //             description: "Prevents wet feet and keeps warm"
+    //         },
+    //         {
+    //             item: "Thermal socks",
+    //             quantity: "10 pairs",
+    //             description: "Provides insulation and keeps feet warm"
+    //         },
+    //         {
+    //             item: "Hats",
+    //             quantity: "5",
+    //             description: "Protects from the rain and adds warmth"
+    //         }
+    //     ],
+    //     other_supplies: [
+    //         {
+    //             item: "First aid kit",
+    //             quantity: "1",
+    //             description: "For treating minor injuries and medical emergencies"
+    //         },
+    //         {
+    //             item: "Flashlights",
+    //             quantity: "5",
+    //             description: "For lighting in case of power failure"
+    //         },
+    //         {
+    //             item: "Batteries",
+    //             quantity: "20",
+    //             description: "For powering flashlights and other devices"
+    //         },
+    //         {
+    //             item: "Multi-tool",
+    //             quantity: "1",
+    //             description: "Versatile tool for various tasks"
+    //         },
+    //         {
+    //             item: "Portable phone charger",
+    //             quantity: "2",
+    //             description: "For charging mobile devices"
+    //         },
+    //         {
+    //             item: "Plastic tarps",
+    //             quantity: "2",
+    //             description: "Can be used for shelter or covering supplies"
+    //         }
+    //     ]
+    // };
+    
+    // Returning the JSON object
+    // res.json(JSON.stringify(survivalSupplies, null, 2));
+    
 });
 module.exports = router;

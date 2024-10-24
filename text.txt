@@ -1,0 +1,43 @@
+{
+    "latitude": 10.82302, 
+    "longitude": 106.62965,
+    "day": 10,
+    "members": [
+        {
+            "name": "Health 1",
+            "HealthAge": 1,
+            "HealthGender": "Male",
+            "HealthWeight": 10,
+            "HealthHeight": 150
+        },
+        {
+            "name": "Health 2",
+            "HealthAge": 50,
+            "HealthGender": "Female",
+            "HealthWeight": 70,
+            "HealthHeight": 160
+        },
+        {
+            "name": "Health 3",
+            "HealthAge": 30,
+            "HealthGender": "Male",
+            "HealthWeight": 80,
+            "HealthHeight": 175
+        },
+        {
+            "name": "Health 4",
+            "HealthAge": 25,
+            "HealthGender": "Female",
+            "HealthWeight": 60,
+            "HealthHeight": 165
+        },
+        {
+            "name": "Health 5",
+            "HealthAge": 40,
+            "HealthGender": "Male",
+            "HealthWeight": 75,
+            "HealthHeight": 170
+        }
+       
+    ]
+}
