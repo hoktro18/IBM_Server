@@ -108,19 +108,20 @@ class Region {
         .where("regionCountry", "==", location.country)
         .get();
 
+    let returnRegion = null;
     // Assert that there is only one region
-    if (region.size > 1) {
-      region = region.docs[0];
+    if (region.size >= 1) {
+      returnRegion = Region.readFromData(region.docs[0].data());
     }
 
     // If there is no region, create a new one
     if (region.empty) {
-      region = await Region.create(location);
+      returnRegion = await Region.create(location);
     }
 
-    console.log(region);
+    console.log(returnRegion);
 
-    return region;
+    return returnRegion;
   }
 
   /**

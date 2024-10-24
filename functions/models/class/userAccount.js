@@ -189,6 +189,7 @@ class UserAccount {
 
     // get the region based on the new location
     const region = await Region.getRegionIdByLocation(newLocation);
+    console.log(region);
 
     // update the user GPSLocation and UserRegionId in one operation
     await userRef.update({
