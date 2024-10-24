@@ -6,7 +6,6 @@ const GPSLocation = require("./location");
 
 const allowedUpdate = [
   "regionStatus",
-  "regionStatusLastUpdated",
 ];
 
 /**
@@ -134,6 +133,31 @@ class Region {
       regions.push(Region.readFromData(doc.data()));
     });
     return regions;
+  }
+
+  /**
+   * ================================================================
+   *                       UPDATE METHODS
+   * ================================================================
+   */
+  // Update region status
+  static async updateStatus(regionId, status) {
+    const regionRef = db.collection("Region").doc(regionId);
+
+    // Check if region exists
+    if (!(await regionRef.get()).exists) {
+      throw new Error("Region not found");
+    }
+
+    // Update the region status
+    await regionRef.update({
+      regionStatus: status,
+      regionStatusLastUpdated: admin.firestore.Timestamp.now(),
+    });
+
+    // Get the updated region
+    const region = await regionRef.get();
+    return Region.readFromData(region.data());
   }
 }
 
